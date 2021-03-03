@@ -1,10 +1,10 @@
-# Go-memorycache-example
-Менеджер кеша в памяти на Golang, хранилище данных в формате ключ/значение
+# memorycache
+менеджер кеша в памяти на Golang, хранилище данных в формате ключ/значение
 
 
 ## Как установить?
 
-  go get github.com/rurick/memorycache
+  go get github.com/rurick/memorycache@lastes
 
 
 ## Как использовать?
