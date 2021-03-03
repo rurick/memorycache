@@ -158,6 +158,8 @@ func (c *Cache) clearItems(keys []string) {
 	defer c.Unlock()
 
 	for _, k := range keys {
-		delete(c.items, k)
+		if _, found := c.items[k]; found {
+			delete(c.items, k)
+		}
 	}
 }
