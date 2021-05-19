@@ -1,30 +1,17 @@
-# memorycache
-менеджер кеша в памяти на Golang, хранилище данных в формате ключ/значение
+# memorycache 
 
+This package provide to save any value in memory 
 
-## Как установить?
+**Important!**
+Be careful to use this cache module in different processes when creating group of microservices
+The cache table is only valid in one process!
 
-  go get github.com/rurick/memorycache@lastes
-
-
-## Как использовать?
-
-Необходимо импортировать пакет
-
-	import (
-		"github.com/rurick/memorycache"
-	)
-
-Инициализировать кеш
-
-	// Создаем кеш с временем жизни по-умолчанию равным 5 минут и удалением просроченного кеша каждые 10 минут
-	cache := memorycache.New(5 * time.Minute, 10 * time.Minute)
-
-
-Использовать
-
-	// Установить кеш с ключем "myKey" и временем жизни 5 минут
-	cache.Set("myKey", "My value", 5 * time.Minute)
-
-	// Получить кеш с ключем "myKey"
-	i := cache.Get("myKey")
+### Usage:
+```go
+cache := New(10*time.Minute, 1*time.Hour)
+cache.Set("simple_key", "value", 1*time.Minute)
+...
+v := cache.Get("simple_key")
+...
+cache.Delete("simple_key")
+```
