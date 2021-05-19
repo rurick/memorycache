@@ -1,7 +1,7 @@
 // Copyright 2019 (c) Yuriy Iovkov aka Rurick.
 // yuriyiovkov@gmail.com; telegram: @yuriyiovkov
 
-// this package provide to save any value in memory
+// this package provides to save any value in memory cache
 // Important!
 // Be careful to use this cache module in different processes when creating group of microservices
 // the cache table is only valid in one process
