@@ -1,6 +1,6 @@
 # memorycache 
 
-This package provide to save any value in memory 
+This package provides to save any value in memory 
 
 **Important!**
 Be careful to use this cache module in different processes when creating group of microservices
