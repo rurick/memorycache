@@ -39,6 +39,8 @@ type Item struct {
 }
 
 // New - initializing a new memory cache
+// defaultExpiration - default cache life time
+// cleanupInterval - garbage collector running interval
 func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 
 	items := make(map[string]Item)
