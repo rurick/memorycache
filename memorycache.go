@@ -65,14 +65,18 @@ func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 // if there is opt with type time.Duration it used as cache life time,
 // else used defaultExpiration from New function
 func (c *Cache) Set(key string, value interface{}, opt ...interface{}) {
-	var duration time.Duration
+	var (
+		duration   time.Duration
+		expiration int64
+	)
+
 	for _, o := range opt {
 		switch o.(type) {
 		case time.Duration:
 			duration = o.(time.Duration)
 		}
 	}
-	var expiration int64
+
 	if duration <= 0 {
 		duration = c.defaultExpiration
 	}
