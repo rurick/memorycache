@@ -9,6 +9,7 @@
 // Usage:
 // cache := New(10*time.Minute, 1*time.Hour)
 // cache.Set("simple_key", "value", 1*time.Minute)
+// cache.Set("simple_key2", "value2")
 // ...
 // v := cache.Get("simple_key")
 // ...
@@ -23,22 +24,30 @@ import (
 	"time"
 )
 
-// Cache - cache storage
-type Cache struct {
-	sync.RWMutex
-	items             map[string]Item
-	defaultExpiration time.Duration
-	cleanupInterval   time.Duration
-}
+type (
+	// Cache - cache storage
+	Cache struct {
+		sync.RWMutex
+		items             map[string]Item
+		defaultExpiration time.Duration
+		cleanupInterval   time.Duration
+	}
 
-// Item - cache item
-type Item struct {
-	Value      interface{}
-	Expiration int64
-	Created    time.Time
-}
+	// Item - cache item
+	Item struct {
+		Value      interface{}
+		Expiration int64
+		Created    time.Time
+	}
+)
+
+var (
+	singleTone sync.Once
+)
 
 // New - initializing a new memory cache
+// defaultExpiration - time.Duration for cache life time
+// cleanupInterval - time.Duration time interval for running garbage collector
 func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 
 	items := make(map[string]Item)
@@ -57,10 +66,16 @@ func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 
 // Set save value to cache with key
 // opt:
-// if there is opt with type time.Duration it used as
-// duration is 0 using defaultExpiration from New function
+// if there is opt with type time.Duration it used as cache life time,
+// else used defaultExpiration from New function
 func (c *Cache) Set(key string, value interface{}, opt ...interface{}) {
-	// duration time.Duration
+	var duration time.Duration
+	for _, o := range opt {
+		switch o.(type) {
+		case time.Duration:
+			duration = o.(time.Duration)
+		}
+	}
 	var expiration int64
 	if duration <= 0 {
 		duration = c.defaultExpiration
@@ -116,7 +131,9 @@ func (c *Cache) Delete(key string) error {
 
 // StartGC start Garbage Collection
 func (c *Cache) startGC() {
-	go c.gc()
+	singleTone.Do(func() {
+		go c.gc()
+	})
 }
 
 // gc Garbage Collection
