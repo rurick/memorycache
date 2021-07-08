@@ -19,6 +19,8 @@
 package memorycache
 
 import (
+	"crypto/sha1"
+	"encoding/hex"
 	"fmt"
 	"sync"
 	"time"
@@ -127,6 +129,13 @@ func (c *Cache) Delete(key string) error {
 
 	delete(c.items, key)
 	return nil
+}
+
+// KeyGen generate 20bits hex key for v
+func KeyGen(v ...interface{}) string {
+	s := sha1.Sum([]byte(fmt.Sprint(v...)))
+	return hex.EncodeToString(s[:])
+
 }
 
 // StartGC start Garbage Collection
