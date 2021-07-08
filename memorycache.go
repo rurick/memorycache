@@ -49,15 +49,18 @@ func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 	}
 
 	if cleanupInterval > 0 {
-		cache.StartGC()
+		cache.startGC()
 	}
 
 	return &cache
 }
 
 // Set save value to cache with key
-// if duration is 0 using defaultExpiration from New function
-func (c *Cache) Set(key string, value interface{}, duration time.Duration) {
+// opt:
+// if there is opt with type time.Duration it used as
+// duration is 0 using defaultExpiration from New function
+func (c *Cache) Set(key string, value interface{}, opt ...interface{}) {
+	// duration time.Duration
 	var expiration int64
 	if duration <= 0 {
 		duration = c.defaultExpiration
@@ -112,12 +115,12 @@ func (c *Cache) Delete(key string) error {
 }
 
 // StartGC start Garbage Collection
-func (c *Cache) StartGC() {
-	go c.GC()
+func (c *Cache) startGC() {
+	go c.gc()
 }
 
-// GC Garbage Collection
-func (c *Cache) GC() {
+// gc Garbage Collection
+func (c *Cache) gc() {
 	for {
 		<-time.After(c.cleanupInterval)
 
