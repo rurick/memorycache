@@ -1,1 +1,1 @@
-module "github.com/rurick/memorycache"
+module "github.com/rurick/memorycache/v2"
