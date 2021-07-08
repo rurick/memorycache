@@ -41,10 +41,6 @@ type (
 	}
 )
 
-var (
-	singleTone sync.Once
-)
-
 // New - initializing a new memory cache
 // defaultExpiration - time.Duration for cache life time
 // cleanupInterval - time.Duration time interval for running garbage collector
@@ -131,9 +127,7 @@ func (c *Cache) Delete(key string) error {
 
 // StartGC start Garbage Collection
 func (c *Cache) startGC() {
-	singleTone.Do(func() {
-		go c.gc()
-	})
+	go c.gc()
 }
 
 // gc Garbage Collection
