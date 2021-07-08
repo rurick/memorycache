@@ -1,7 +1,7 @@
 // Copyright 2019 (c) Yuriy Iovkov aka Rurick.
 // yuriyiovkov@gmail.com; telegram: @yuriyiovkov
 
-// this package provide to save any value in memory
+// this package provides to save any value in memory cache
 // Important!
 // Be careful to use this cache module in different processes when creating group of microservices
 // the cache table is only valid in one process
@@ -9,6 +9,7 @@
 // Usage:
 // cache := New(10*time.Minute, 1*time.Hour)
 // cache.Set("simple_key", "value", 1*time.Minute)
+// cache.Set("simple_key2", "value2")
 // ...
 // v := cache.Get("simple_key")
 // ...
@@ -23,24 +24,26 @@ import (
 	"time"
 )
 
-// Cache - cache storage
-type Cache struct {
-	sync.RWMutex
-	items             map[string]Item
-	defaultExpiration time.Duration
-	cleanupInterval   time.Duration
-}
+type (
+	// Cache - cache storage
+	Cache struct {
+		sync.RWMutex
+		items             map[string]Item
+		defaultExpiration time.Duration
+		cleanupInterval   time.Duration
+	}
 
-// Item - cache item
-type Item struct {
-	Value      interface{}
-	Expiration int64
-	Created    time.Time
-}
+	// Item - cache item
+	Item struct {
+		Value      interface{}
+		Expiration int64
+		Created    time.Time
+	}
+)
 
 // New - initializing a new memory cache
-// defaultExpiration - default cache life time
-// cleanupInterval - garbage collector running interval
+// defaultExpiration - time.Duration for cache life time
+// cleanupInterval - time.Duration time interval for running garbage collector
 func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 
 	items := make(map[string]Item)
@@ -51,15 +54,24 @@ func New(defaultExpiration, cleanupInterval time.Duration) *Cache {
 	}
 
 	if cleanupInterval > 0 {
-		cache.StartGC()
+		cache.startGC()
 	}
 
 	return &cache
 }
 
 // Set save value to cache with key
-// if duration is 0 using defaultExpiration from New function
-func (c *Cache) Set(key string, value interface{}, duration time.Duration) {
+// opt:
+// if there is opt with type time.Duration it used as cache life time,
+// else used defaultExpiration from New function
+func (c *Cache) Set(key string, value interface{}, opt ...interface{}) {
+	var duration time.Duration
+	for _, o := range opt {
+		switch o.(type) {
+		case time.Duration:
+			duration = o.(time.Duration)
+		}
+	}
 	var expiration int64
 	if duration <= 0 {
 		duration = c.defaultExpiration
@@ -114,12 +126,12 @@ func (c *Cache) Delete(key string) error {
 }
 
 // StartGC start Garbage Collection
-func (c *Cache) StartGC() {
-	go c.GC()
+func (c *Cache) startGC() {
+	go c.gc()
 }
 
-// GC Garbage Collection
-func (c *Cache) GC() {
+// gc Garbage Collection
+func (c *Cache) gc() {
 	for {
 		<-time.After(c.cleanupInterval)
 
